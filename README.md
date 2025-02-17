@@ -7,6 +7,7 @@
   - Seems like the item of a name could be narrowed down with a union type?
 - Read requirements + make base test cases
   - Start with Aged Brie
+  - Continue with Sulfuras cases
 
 # Gilded Rose
 
