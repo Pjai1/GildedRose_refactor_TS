@@ -1,5 +1,5 @@
 export class Item {
-  name: string;
+  name: string; // --> seems like could be narrowed down to a set of values
   sellIn: number;
   quality: number;
 

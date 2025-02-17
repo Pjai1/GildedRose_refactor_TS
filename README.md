@@ -4,7 +4,9 @@
 - Choose jest as testing framework, remove other deps (keep it clean)
 - Add prettier for proper code formatting
 - Do quick check of `gilded-rose.ts` and improve base typing
+  - Seems like the item of a name could be narrowed down with a union type?
 - Read requirements + make base test cases
+  - Start with Aged Brie
 
 # Gilded Rose
 
