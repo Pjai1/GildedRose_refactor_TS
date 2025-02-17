@@ -9,10 +9,13 @@
   - Start with Aged Brie
   - Continue with Sulfuras cases
   - End with Backstage passes
+  - Since we have coverage reports we can check what tests could be missing (result 100% so all good)
 - Do some base readability changes in main file whilst watching test file
   - Add specific types aliases for known items
   - Add MAX QUALITY const
 - Extract Aged Brie functionality separately and apply to main fn
+- Extract Sulfuras functionality separately and apply to main fn
+  - Add default quality const for Sulfuras
 
 # Gilded Rose
 
