@@ -17,6 +17,10 @@
 - Extract Sulfuras functionality separately and apply to main fn
   - Add default quality const for Sulfuras
 - Extract Backstage Passes functionality separately and apply to main fn
+- Time to add the NEW Conjured item
+  - Start with test cases
+  - Add separate fn like with other cases
+  - Update snapshot since it was incorrect for Conjured
 
 # Gilded Rose
 

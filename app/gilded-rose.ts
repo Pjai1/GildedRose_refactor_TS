@@ -1,11 +1,18 @@
 const MAX_QUALITY = 50;
 const SULFURAS_FIXED_QUALITY = 80;
 
-const knownItems = ['Aged Brie', 'Backstage passes to a TAFKAL80ETC concert', 'Sulfuras, Hand of Ragnaros'] as const;
+const knownItems = [
+  'Aged Brie',
+  'Backstage passes to a TAFKAL80ETC concert',
+  'Sulfuras, Hand of Ragnaros',
+  'Conjured Mana Cake',
+] as const;
 type KnownItems = (typeof knownItems)[number];
 type AgedBrie = (typeof knownItems)[0];
 type BackstagePasses = (typeof knownItems)[1];
 type Sulfuras = (typeof knownItems)[2];
+type Conjured = (typeof knownItems)[3];
+
 interface AgedBrieItem extends Omit<Item, 'name'> {
   name: AgedBrie;
 }
@@ -21,6 +28,11 @@ interface SulfurasItem extends Omit<Item, 'name'> {
   name: Sulfuras;
 }
 const isSulfuras = (item: Item): item is SulfurasItem => item.name === 'Sulfuras, Hand of Ragnaros';
+
+interface ConjuredItem extends Omit<Item, 'name'> {
+  name: Conjured;
+}
+const isConjured = (item: Item): item is ConjuredItem => item.name === 'Conjured Mana Cake';
 
 export class Item {
   name: KnownItems | string;
@@ -60,6 +72,11 @@ export class GildedRose {
         continue;
       }
 
+      if (isConjured(currentItem)) {
+        this.updateConjuredQuality(currentItem);
+        continue;
+      }
+
       if (currentItem.quality > 0) {
         currentItem.quality = currentItem.quality - 1;
       }
@@ -78,7 +95,9 @@ export class GildedRose {
     if (item.quality < MAX_QUALITY) {
       item.quality += 1;
     }
+
     item.sellIn -= 1;
+
     if (item.sellIn < 0 && item.quality < MAX_QUALITY) {
       item.quality += 1;
     }
@@ -105,6 +124,18 @@ export class GildedRose {
 
     if (item.sellIn < 0) {
       item.quality = 0;
+    }
+  }
+
+  private updateConjuredQuality(item: ConjuredItem): void {
+    if (item.quality > 0) {
+      item.quality = item.quality - 2;
+    }
+
+    item.sellIn = item.sellIn - 1;
+
+    if (item.sellIn < 0 && item.quality > 0) {
+      item.quality = item.quality - 2;
     }
   }
 }

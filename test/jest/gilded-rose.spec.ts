@@ -66,4 +66,24 @@ describe('Gilded Rose (updateQuality)', () => {
       expect(items[0].quality).toBe(0);
     });
   });
+
+  describe('Conjured Mana Cake', () => {
+    it('degrades in quality twice as fast as normal items', () => {
+      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 2, 20)]);
+      const items = gildedRose.updateQuality();
+      expect(items[0].quality).toBe(18);
+    });
+
+    it('degrades in quality twice as fast after sell date', () => {
+      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 0, 20)]);
+      const items = gildedRose.updateQuality();
+      expect(items[0].quality).toBe(16);
+    });
+
+    it('quality of an item is never negative', () => {
+      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 2, 0)]);
+      const items = gildedRose.updateQuality();
+      expect(items[0].quality).toBe(0);
+    });
+  });
 });
