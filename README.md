@@ -1,3 +1,9 @@
+# Approach
+- Check base files provided (editorconfig, jest config & tsconfig) and amend if necessary
+- Choose jest as testing framework, remove other deps (keep it clean)
+- Do quick check of `gilded-rose.ts` and improve base typing
+- Read requirements + make base test cases
+
 # Gilded Rose
 
 This is the Gilded Rose kata in TypeScript.
