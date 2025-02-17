@@ -8,6 +8,7 @@
 - Read requirements + make base test cases
   - Start with Aged Brie
   - Continue with Sulfuras cases
+  - End with Backstage passes
 
 # Gilded Rose
 
