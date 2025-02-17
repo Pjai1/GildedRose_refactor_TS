@@ -9,6 +9,10 @@
   - Start with Aged Brie
   - Continue with Sulfuras cases
   - End with Backstage passes
+- Do some base readability changes in main file whilst watching test file
+  - Add specific types aliases for known items
+  - Add MAX QUALITY const
+- Extract Aged Brie functionality separately and apply to main fn
 
 # Gilded Rose
 

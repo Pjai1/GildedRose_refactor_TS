@@ -1,6 +1,6 @@
 import { Item, GildedRose } from '@/gilded-rose';
 
-describe('Gilded Rose', () => {
+describe('Gilded Rose (updateQuality)', () => {
   describe('Aged Brie', () => {
     it('increases in quality the older it gets', () => {
       const gildedRose = new GildedRose([new Item('Aged Brie', 2, 0)]);
