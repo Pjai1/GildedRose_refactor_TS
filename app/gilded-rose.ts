@@ -1,97 +1,53 @@
 const MAX_QUALITY = 50;
 const SULFURAS_FIXED_QUALITY = 80;
 
-const knownItems = [
+const KNOWN_ITEMS = [
   'Aged Brie',
   'Backstage passes to a TAFKAL80ETC concert',
   'Sulfuras, Hand of Ragnaros',
   'Conjured Mana Cake',
 ] as const;
-type KnownItems = (typeof knownItems)[number];
-type AgedBrie = (typeof knownItems)[0];
-type BackstagePasses = (typeof knownItems)[1];
-type Sulfuras = (typeof knownItems)[2];
-type Conjured = (typeof knownItems)[3];
 
-interface AgedBrieItem extends Omit<Item, 'name'> {
-  name: AgedBrie;
-}
-const isAgedBrie = (item: Item): item is AgedBrieItem => item.name === 'Aged Brie';
-
-interface BackstagePassesItem extends Omit<Item, 'name'> {
-  name: BackstagePasses;
-}
-const isBackstagePasses = (item: Item): item is BackstagePassesItem =>
-  item.name === 'Backstage passes to a TAFKAL80ETC concert';
-
-interface SulfurasItem extends Omit<Item, 'name'> {
-  name: Sulfuras;
-}
-const isSulfuras = (item: Item): item is SulfurasItem => item.name === 'Sulfuras, Hand of Ragnaros';
-
-interface ConjuredItem extends Omit<Item, 'name'> {
-  name: Conjured;
-}
-const isConjured = (item: Item): item is ConjuredItem => item.name === 'Conjured Mana Cake';
+type KnownItems = (typeof KNOWN_ITEMS)[number];
+type ItemName = KnownItems | string;
+type AgedBrie = (typeof KNOWN_ITEMS)[0];
+type BackstagePasses = (typeof KNOWN_ITEMS)[1];
+type Sulfuras = (typeof KNOWN_ITEMS)[2];
+type Conjured = (typeof KNOWN_ITEMS)[3];
 
 export class Item {
-  name: KnownItems | string;
+  name: ItemName;
   sellIn: number;
   quality: number;
 
-  constructor(name: Item['name'], sellIn: Item['sellIn'], quality: Item['quality']) {
+  constructor(name: ItemName, sellIn: number, quality: number) {
     this.name = name;
     this.sellIn = sellIn;
     this.quality = quality;
   }
 }
+interface AgedBrieItem extends Omit<Item, 'name'> {
+  name: AgedBrie;
+}
 
-export class GildedRose {
-  items: Item[];
+interface BackstagePassesItem extends Omit<Item, 'name'> {
+  name: BackstagePasses;
+}
 
-  constructor(items: Item[] = []) {
-    this.items = items;
-  }
+interface SulfurasItem extends Omit<Item, 'name'> {
+  name: Sulfuras;
+}
 
-  updateQuality(): Item[] {
-    for (let i = 0; i < this.items.length; i++) {
-      const currentItem = this.items[i];
+interface ConjuredItem extends Omit<Item, 'name'> {
+  name: Conjured;
+}
 
-      if (isAgedBrie(currentItem)) {
-        this.updateAgedBrieQuality(currentItem);
-        continue;
-      }
+interface UpdateStrategy {
+  update(item: Item): void;
+}
 
-      if (isSulfuras(currentItem)) {
-        this.updateSulfurasQuality(currentItem);
-        continue;
-      }
-
-      if (isBackstagePasses(currentItem)) {
-        this.updateBackstagePassesQuality(currentItem);
-        continue;
-      }
-
-      if (isConjured(currentItem)) {
-        this.updateConjuredQuality(currentItem);
-        continue;
-      }
-
-      if (currentItem.quality > 0) {
-        currentItem.quality = currentItem.quality - 1;
-      }
-
-      currentItem.sellIn = currentItem.sellIn - 1;
-
-      if (currentItem.sellIn < 0 && currentItem.quality > 0) {
-        currentItem.quality = currentItem.quality - 1;
-      }
-    }
-
-    return this.items;
-  }
-
-  private updateAgedBrieQuality(item: AgedBrieItem): void {
+class AgedBrieStrategy implements UpdateStrategy {
+  update(item: AgedBrieItem): void {
     if (item.quality < MAX_QUALITY) {
       item.quality += 1;
     }
@@ -102,12 +58,15 @@ export class GildedRose {
       item.quality += 1;
     }
   }
-
-  private updateSulfurasQuality(item: SulfurasItem): void {
+}
+class SulfurasStrategy implements UpdateStrategy {
+  update(item: SulfurasItem): void {
     item.quality = SULFURAS_FIXED_QUALITY;
   }
+}
 
-  private updateBackstagePassesQuality(item: BackstagePassesItem): void {
+class BackstagePassesStrategy implements UpdateStrategy {
+  update(item: BackstagePassesItem): void {
     if (item.quality < MAX_QUALITY) {
       item.quality += 1;
 
@@ -126,16 +85,68 @@ export class GildedRose {
       item.quality = 0;
     }
   }
+}
 
-  private updateConjuredQuality(item: ConjuredItem): void {
+class ConjuredStrategy implements UpdateStrategy {
+  update(item: ConjuredItem): void {
     if (item.quality > 0) {
-      item.quality = item.quality - 2;
+      item.quality -= 2;
+
+      if (item.quality < 0) {
+        item.quality = 0;
+      }
     }
 
-    item.sellIn = item.sellIn - 1;
+    item.sellIn -= 1;
 
     if (item.sellIn < 0 && item.quality > 0) {
-      item.quality = item.quality - 2;
+      item.quality -= 2;
+
+      if (item.quality < 0) {
+        item.quality = 0;
+      }
     }
+  }
+}
+
+class DefaultStrategy implements UpdateStrategy {
+  update(item: Item): void {
+    if (item.quality > 0) {
+      item.quality -= 1;
+    }
+
+    item.sellIn -= 1;
+
+    if (item.sellIn < 0 && item.quality > 0) {
+      item.quality -= 1;
+    }
+  }
+}
+export class GildedRose {
+  private readonly strategies: Map<string, UpdateStrategy>;
+  private readonly items: Item[];
+
+  constructor(items: Item[] = []) {
+    this.items = items;
+    this.strategies = new Map<string, UpdateStrategy>([
+      ['Aged Brie', new AgedBrieStrategy()],
+      ['Backstage passes to a TAFKAL80ETC concert', new BackstagePassesStrategy()],
+      ['Sulfuras, Hand of Ragnaros', new SulfurasStrategy()],
+      ['Conjured Mana Cake', new ConjuredStrategy()],
+    ]);
+  }
+
+  updateQuality(): Item[] {
+    for (let item of this.items) {
+      const strategy = this.getStrategy(item);
+
+      strategy.update(item);
+    }
+
+    return this.items;
+  }
+
+  private getStrategy(item: Item): UpdateStrategy {
+    return this.strategies.get(item.name) || new DefaultStrategy();
   }
 }

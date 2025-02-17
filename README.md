@@ -23,6 +23,7 @@
   - Update snapshot since it was incorrect for Conjured
 - EXTRA STEPS
   - Go over spec file and restructure a bit to clear up repetition
+  - Use strategy pattern for update quality to make it modular
 
 # Gilded Rose
 
