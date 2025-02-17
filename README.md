@@ -21,6 +21,8 @@
   - Start with test cases
   - Add separate fn like with other cases
   - Update snapshot since it was incorrect for Conjured
+- EXTRA STEPS
+  - Go over spec file and restructure a bit to clear up repetition
 
 # Gilded Rose
 

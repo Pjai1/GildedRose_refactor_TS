@@ -1,89 +1,82 @@
 import { Item, GildedRose } from '@/gilded-rose';
 
+const buildGildedRose = (item: Item) => new GildedRose([new Item(item.name, item.sellIn, item.quality)]);
+
 describe('Gilded Rose (updateQuality)', () => {
-  describe('Aged Brie', () => {
-    it('increases in quality the older it gets', () => {
-      const gildedRose = new GildedRose([new Item('Aged Brie', 2, 0)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(1);
-    });
+  const AGED_BRIE = 'Aged Brie';
 
-    it('increases in quality twice as fast after sell date', () => {
-      const gildedRose = new GildedRose([new Item('Aged Brie', 0, 0)]);
+  describe(AGED_BRIE, () => {
+    test.each([
+      { sellIn: 2, quality: 0, expectedQuality: 1, description: 'increases in quality the older it gets' },
+      { sellIn: 0, quality: 0, expectedQuality: 2, description: 'increases in quality twice as fast after sell date' },
+      { sellIn: 2, quality: 50, expectedQuality: 50, description: 'quality is never more than 50' },
+      { sellIn: 2, quality: 0, expectedQuality: 1, description: 'quality never negative' },
+    ])('$description', ({ sellIn, quality, expectedQuality }) => {
+      const gildedRose = buildGildedRose({ name: AGED_BRIE, sellIn, quality });
       const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(2);
-    });
 
-    it('quality of an item is never more than 50', () => {
-      const gildedRose = new GildedRose([new Item('Aged Brie', 2, 50)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(50);
-    });
-
-    it('quality of an item is never negative', () => {
-      const gildedRose = new GildedRose([new Item('Aged Brie', 2, 0)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(1);
+      expect(items[0].quality).toBe(expectedQuality);
     });
   });
 
-  describe('Sulfuras, Hand of Ragnaros', () => {
-    it('never has to be sold', () => {
-      const gildedRose = new GildedRose([new Item('Sulfuras, Hand of Ragnaros', 0, 80)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].sellIn).toBe(0);
-    });
+  const SULFURAS = 'Sulfuras, Hand of Ragnaros';
 
-    it('never decreases in quality', () => {
-      const gildedRose = new GildedRose([new Item('Sulfuras, Hand of Ragnaros', 0, 80)]);
+  describe(SULFURAS, () => {
+    test.each([
+      { sellIn: 0, quality: 80, expectedSellIn: 0, description: 'never has to be sold' },
+      { sellIn: 0, quality: 80, expectedQuality: 80, description: 'never decreases in quality' },
+    ])('$description', ({ sellIn, quality, expectedSellIn, expectedQuality }) => {
+      const gildedRose = buildGildedRose({ name: SULFURAS, sellIn, quality });
       const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(80);
-    });
-  });
 
-  describe('Backstage passes to a TAFKAL80ETC concert', () => {
-    it('increases in quality as sellIn value approaches', () => {
-      const gildedRose = new GildedRose([new Item('Backstage passes to a TAFKAL80ETC concert', 15, 20)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(21);
-    });
+      if (expectedSellIn !== undefined) {
+        expect(items[0].sellIn).toBe(expectedSellIn);
+      }
 
-    it('increases in quality by 2 when there are 10 days or less', () => {
-      const gildedRose = new GildedRose([new Item('Backstage passes to a TAFKAL80ETC concert', 10, 20)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(22);
-    });
-
-    it('increases in quality by 3 when there are 5 days or less', () => {
-      const gildedRose = new GildedRose([new Item('Backstage passes to a TAFKAL80ETC concert', 5, 20)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(23);
-    });
-
-    it('quality drops to 0 after the concert', () => {
-      const gildedRose = new GildedRose([new Item('Backstage passes to a TAFKAL80ETC concert', 0, 20)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(0);
+      if (expectedQuality !== undefined) {
+        expect(items[0].quality).toBe(expectedQuality);
+      }
     });
   });
 
-  describe('Conjured Mana Cake', () => {
-    it('degrades in quality twice as fast as normal items', () => {
-      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 2, 20)]);
-      const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(18);
-    });
+  const BACKSTAGE = 'Backstage passes to a TAFKAL80ETC concert';
 
-    it('degrades in quality twice as fast after sell date', () => {
-      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 0, 20)]);
+  describe(BACKSTAGE, () => {
+    test.each([
+      { sellIn: 15, quality: 20, expectedQuality: 21, description: 'increases in quality as sellIn approaches' },
+      {
+        sellIn: 10,
+        quality: 20,
+        expectedQuality: 22,
+        description: 'increases in quality by 2 when there are 10 days or less',
+      },
+      {
+        sellIn: 5,
+        quality: 20,
+        expectedQuality: 23,
+        description: 'increases in quality by 3 when there are 5 days or less',
+      },
+      { sellIn: 0, quality: 20, expectedQuality: 0, description: 'quality drops to 0 after the concert' },
+    ])('$description', ({ sellIn, quality, expectedQuality }) => {
+      const gildedRose = buildGildedRose({ name: BACKSTAGE, sellIn, quality });
       const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(16);
-    });
 
-    it('quality of an item is never negative', () => {
-      const gildedRose = new GildedRose([new Item('Conjured Mana Cake', 2, 0)]);
+      expect(items[0].quality).toBe(expectedQuality);
+    });
+  });
+
+  const CONJURED = 'Conjured Mana Cake';
+
+  describe(CONJURED, () => {
+    test.each([
+      { sellIn: 2, quality: 20, expectedQuality: 18, description: 'degrades in quality twice as fast as normal items' },
+      { sellIn: 0, quality: 20, expectedQuality: 16, description: 'degrades in quality twice as fast after sell date' },
+      { sellIn: 2, quality: 0, expectedQuality: 0, description: 'quality of an item is never negative' },
+    ])('$description', ({ sellIn, quality, expectedQuality }) => {
+      const gildedRose = buildGildedRose({ name: CONJURED, sellIn, quality });
       const items = gildedRose.updateQuality();
-      expect(items[0].quality).toBe(0);
+
+      expect(items[0].quality).toBe(expectedQuality);
     });
   });
 });
