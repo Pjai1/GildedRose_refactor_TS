@@ -4,12 +4,18 @@ const SULFURAS_FIXED_QUALITY = 80;
 const knownItems = ['Aged Brie', 'Backstage passes to a TAFKAL80ETC concert', 'Sulfuras, Hand of Ragnaros'] as const;
 type KnownItems = (typeof knownItems)[number];
 type AgedBrie = (typeof knownItems)[0];
+type BackstagePasses = (typeof knownItems)[1];
 type Sulfuras = (typeof knownItems)[2];
-
 interface AgedBrieItem extends Omit<Item, 'name'> {
   name: AgedBrie;
 }
 const isAgedBrie = (item: Item): item is AgedBrieItem => item.name === 'Aged Brie';
+
+interface BackstagePassesItem extends Omit<Item, 'name'> {
+  name: BackstagePasses;
+}
+const isBackstagePasses = (item: Item): item is BackstagePassesItem =>
+  item.name === 'Backstage passes to a TAFKAL80ETC concert';
 
 interface SulfurasItem extends Omit<Item, 'name'> {
   name: Sulfuras;
@@ -49,38 +55,19 @@ export class GildedRose {
         continue;
       }
 
-      if (currentItem.name !== 'Backstage passes to a TAFKAL80ETC concert') {
-        if (currentItem.quality > 0) {
-          currentItem.quality = currentItem.quality - 1;
-        }
-      } else {
-        if (currentItem.quality < MAX_QUALITY) {
-          currentItem.quality = currentItem.quality + 1;
+      if (isBackstagePasses(currentItem)) {
+        this.updateBackstagePassesQuality(currentItem);
+        continue;
+      }
 
-          if (currentItem.sellIn < 11) {
-            if (currentItem.quality < MAX_QUALITY) {
-              currentItem.quality = currentItem.quality + 1;
-            }
-          }
-
-          if (currentItem.sellIn < 6) {
-            if (currentItem.quality < MAX_QUALITY) {
-              currentItem.quality = currentItem.quality + 1;
-            }
-          }
-        }
+      if (currentItem.quality > 0) {
+        currentItem.quality = currentItem.quality - 1;
       }
 
       currentItem.sellIn = currentItem.sellIn - 1;
 
-      if (currentItem.sellIn < 0) {
-        if (currentItem.name !== 'Backstage passes to a TAFKAL80ETC concert') {
-          if (currentItem.quality > 0) {
-            currentItem.quality = currentItem.quality - 1;
-          }
-        } else {
-          currentItem.quality = currentItem.quality - currentItem.quality;
-        }
+      if (currentItem.sellIn < 0 && currentItem.quality > 0) {
+        currentItem.quality = currentItem.quality - 1;
       }
     }
 
@@ -91,9 +78,7 @@ export class GildedRose {
     if (item.quality < MAX_QUALITY) {
       item.quality += 1;
     }
-
     item.sellIn -= 1;
-
     if (item.sellIn < 0 && item.quality < MAX_QUALITY) {
       item.quality += 1;
     }
@@ -101,5 +86,25 @@ export class GildedRose {
 
   private updateSulfurasQuality(item: SulfurasItem): void {
     item.quality = SULFURAS_FIXED_QUALITY;
+  }
+
+  private updateBackstagePassesQuality(item: BackstagePassesItem): void {
+    if (item.quality < MAX_QUALITY) {
+      item.quality += 1;
+
+      if (item.sellIn <= 10 && item.quality < MAX_QUALITY) {
+        item.quality += 1;
+      }
+
+      if (item.sellIn <= 5 && item.quality < MAX_QUALITY) {
+        item.quality += 1;
+      }
+    }
+
+    item.sellIn -= 1;
+
+    if (item.sellIn < 0) {
+      item.quality = 0;
+    }
   }
 }

@@ -16,6 +16,7 @@
 - Extract Aged Brie functionality separately and apply to main fn
 - Extract Sulfuras functionality separately and apply to main fn
   - Add default quality const for Sulfuras
+- Extract Backstage Passes functionality separately and apply to main fn
 
 # Gilded Rose
 
